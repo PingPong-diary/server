@@ -33,40 +33,47 @@ public class UserService {
 
 		userMapper.joinUser(user);
 	}
-	
+
 	public boolean isEmail(String email) {
-	    return userMapper.isEmail(email);
+		return userMapper.isEmail(email);
 	}
-	
+
 	public User getLoginUser() {
-	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    if (authentication != null) {
-	        return (User) authentication.getPrincipal(); // 인증된 사용자 정보 반환
-	    }
-	    return null; // 인증되지 않으면 null 반환
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication != null) {
+			return (User) authentication.getPrincipal(); // 인증된 사용자 정보 반환
+		}
+		return null;
 	}
-	
+
 	public void changePassword(ChangePwRequestDto request) {
-	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	    String email = (String) auth.getPrincipal();
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String email = (String) auth.getPrincipal();
 
-	    User user = userMapper.getUser(email);
-	    if (!passwordEncoder.matches(request.getCurrentPw(), user.getPassword())) {
-	        throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
-	    }
+		User user = userMapper.getUser(email);
+		if (!passwordEncoder.matches(request.getCurrentPw(), user.getPassword())) {
+			throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+		}
 
-	    String encodedNewPw = passwordEncoder.encode(request.getNewPw());
-	    userMapper.changePw(email, encodedNewPw);
+		String encodedNewPw = passwordEncoder.encode(request.getNewPw());
+		userMapper.changePw(email, encodedNewPw);
 	}
-	
-	public void resetPassword(ResetPwRequestDto request) {
-	    User user = userMapper.getUser(request.getEmail());
-	    if (user == null) {
-	        throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
-	    }
 
-	    String encodedPw = passwordEncoder.encode(request.getNewPw());
-	    userMapper.changePw(request.getEmail(), encodedPw);
+	public void resetPassword(ResetPwRequestDto request) {
+		User user = userMapper.getUser(request.getEmail());
+		if (user == null) {
+			throw new IllegalArgumentException("존재하지 않는 이메일입니다.");
+		}
+
+		String encodedPw = passwordEncoder.encode(request.getNewPw());
+		userMapper.changePw(request.getEmail(), encodedPw);
+	}
+
+	public void deleteUser() {
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		String email = (String) auth.getPrincipal();
+
+		userMapper.deleteUser(email);
 	}
 
 }

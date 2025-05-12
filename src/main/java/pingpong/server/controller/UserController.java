@@ -1,5 +1,6 @@
 package pingpong.server.controller;
 
+import java.util.Map;
 import java.util.Random;
 
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.User;
+import pingpong.server.dto.ApiResponse;
 import pingpong.server.dto.request.JoinRequestDto;
 import pingpong.server.dto.request.LoginRequestDto;
 import pingpong.server.dto.request.MailRequestDto;
@@ -21,101 +23,137 @@ import pingpong.server.dto.request.ResetPwRequestDto;
 import pingpong.server.dto.response.ChangePwRequestDto;
 import pingpong.server.dto.response.UserSearchResponseDto;
 import pingpong.server.service.MailService;
+import pingpong.server.service.MailVerificationService;
 import pingpong.server.service.UserService;
 import pingpong.server.util.JwtUtil;
 
-@RestController
+@RestController	
 @RequiredArgsConstructor
 @RequestMapping("/user")
 public class UserController {
 
-	private final UserService userService;
-	private final JwtUtil jwtUtil;
-	private final PasswordEncoder passwordEncoder;
-	private final MailService mailService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final PasswordEncoder passwordEncoder;
+    private final MailService mailService;
+    private final MailVerificationService mailVerificationService;
 
-	@PostMapping("/join")
-	public ResponseEntity<String> joinUser(@RequestBody JoinRequestDto request) {
-		if (userService.isEmail(request.getEmail())) {
-			return ResponseEntity.badRequest().body("이미 사용 중인 이메일입니다.");
-		}
+    @PostMapping("/join")
+    public ResponseEntity<ApiResponse<Void>> joinUser(@RequestBody JoinRequestDto request) {
+        if (userService.isEmail(request.getEmail())) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(true, "이미 등록된 아이디입니다!", null));
+        }
+        userService.joinUser(request);
+        return ResponseEntity.ok(new ApiResponse<>(true, "회원가입 성공", null));
+    }
 
-		userService.joinUser(request);
-		return ResponseEntity.ok("회원가입 완료");
-	}
+    @GetMapping("/check-email")
+    public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
+        boolean isDuplicate = userService.isEmail(email);
+        return ResponseEntity.ok(new ApiResponse<>(true, "이메일 중복 확인 완료", isDuplicate));
+    }
 
-	@GetMapping("/check-email")
-	public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
-		boolean isDuplicate = userService.isEmail(email);
-		return ResponseEntity.ok(isDuplicate);
-	}
+    @PostMapping("/login")
+    public ResponseEntity<ApiResponse<Map<String, String>>> login(@RequestBody LoginRequestDto request) {
+        User user = userService.getUser(request.getEmail());
+        if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            String token = jwtUtil.generateToken(user.getEmail());
+            return ResponseEntity.ok(new ApiResponse<>(true, "로그인 성공", Map.of("token", token)));
+        } else {
+            return ResponseEntity.status(401)
+                .body(new ApiResponse<>(false, "이메일 또는 비밀번호가 틀렸습니다.", null));
+        }
+    }
 
-	@PostMapping("/login")
-	public ResponseEntity<String> login(@RequestBody LoginRequestDto request) {
-		User user = userService.getUser(request.getEmail());
-		if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-			String token = jwtUtil.generateToken(user.getEmail());
-			return ResponseEntity.ok(token); // 클라이언트에게 토큰 반환
-		} else {
-			return ResponseEntity.status(401).body("이메일 또는 비밀번호가 틀렸습니다.");
-		}
-	}
+    @GetMapping("/token")
+    public ResponseEntity<ApiResponse<User>> getLoginUser() {
+        User user = userService.getLoginUser();
+        if (user != null) {
+            return ResponseEntity.ok(new ApiResponse<>(true, "유저 조회 성공", user));
+        } else {
+            return ResponseEntity.status(401)
+                .body(new ApiResponse<>(false, "인증되지 않은 사용자입니다.", null));
+        }
+    }
 
-	@GetMapping("/token")
-	public ResponseEntity<User> getLoginUser() {
-		User user = userService.getLoginUser();
-		return user != null ? ResponseEntity.ok(user) : ResponseEntity.status(401).build(); // 인증된 사용자 반환
-	}
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<Void>> logout() {
+        return ResponseEntity.ok(new ApiResponse<>(true, "로그아웃 되었습니다. 토큰은 클라이언트에서 삭제하세요.", null));
+    }
 
-	@GetMapping("/search")
-	public ResponseEntity<UserSearchResponseDto> searchUser(@RequestParam String email) {
-		User user = userService.getUser(email);
-		if (user != null) {
-			UserSearchResponseDto response = new UserSearchResponseDto(user.getNickname(), user.getProfileImg());
-			return ResponseEntity.ok(response);
-		} else {
-			return ResponseEntity.notFound().build();
-		}
-	}
+    @PatchMapping("/change-pw")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody ChangePwRequestDto request) {
+        try {
+            userService.changePassword(request);
+            return ResponseEntity.ok(new ApiResponse<>(true, "비밀번호가 변경되었습니다.", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
 
-	@PatchMapping("/change-pw")
-	public ResponseEntity<?> changePassword(@RequestBody ChangePwRequestDto request) {
-		try {
-			userService.changePassword(request);
-			return ResponseEntity.ok("비밀번호가 변경되었습니다.");
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.status(400).body(e.getMessage());
-		}
-	}
+    @PostMapping("/pw/reset")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody ResetPwRequestDto request) {
+        try {
+            userService.resetPassword(request);
+            return ResponseEntity.ok(new ApiResponse<>(true, "비밀번호가 재설정되었습니다.", null));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(false, e.getMessage(), null));
+        }
+    }
 
-	@PostMapping("/pw/reset")
-	public ResponseEntity<?> resetPassword(@RequestBody ResetPwRequestDto request) {
-		try {
-			userService.resetPassword(request);
-			return ResponseEntity.ok("비밀번호가 재설정되었습니다.");
-		} catch (IllegalArgumentException e) {
-			return ResponseEntity.badRequest().body(e.getMessage());
-		}
-	}
+    @PostMapping("/email/request-code")
+    public ResponseEntity<ApiResponse<Void>> sendResetCode(@RequestBody MailRequestDto request) {
+        String code = generateRandomCode();
+        mailService.sendCode(request.getEmail(), code);
 
-	private String generateRandomCode() {
-		int length = 6;	
-		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-		StringBuilder code = new StringBuilder();
-		Random random = new Random();
+        mailVerificationService.saveVerificationCode(request.getEmail(), code);
 
-		for (int i = 0; i < length; i++) {
-			code.append(characters.charAt(random.nextInt(characters.length())));
-		}
-		return code.toString();
-	}
+        return ResponseEntity.ok(new ApiResponse<>(true, "인증 코드가 전송되었습니다.", null));
+    }
 
-	@PostMapping("/pw/reset/request")
-	public ResponseEntity<String> sendResetCode(@RequestBody MailRequestDto request) {
-		String code = generateRandomCode(); 
-		mailService.sendCode(request.getEmail(), code);
 
-		return ResponseEntity.ok("인증 코드가 전송되었습니다.");
-	}
+    @PostMapping("/email/verify")
+    public ResponseEntity<ApiResponse<Void>> verifyCode(@RequestBody MailRequestDto request) {
+        boolean verified = mailVerificationService.verifyCode(request.getEmail(), request.getCode());
 
+        if (verified) {
+            mailVerificationService.removeCode(request.getEmail());
+            return ResponseEntity.ok(new ApiResponse<>(true, "인증 성공!", null));
+        } else {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(false, "인증 코드가 일치하지 않습니다.", null));
+        }
+    }
+
+    @PatchMapping("/delete-account")
+    public ResponseEntity<ApiResponse<Void>> deleteUser() {
+        userService.deleteUser();
+        return ResponseEntity.ok(new ApiResponse<>(true, "회원 탈퇴 완료", null));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<UserSearchResponseDto>> searchUser(@RequestParam String email) {
+        User user = userService.getUser(email);
+        if (user != null) {
+            UserSearchResponseDto response = new UserSearchResponseDto(user.getNickname(), user.getProfileImg());
+            return ResponseEntity.ok(new ApiResponse<>(true, "유저 검색 성공", response));
+        } else {
+            return ResponseEntity.status(404)
+                .body(new ApiResponse<>(false, "해당 유저를 찾을 수 없습니다.", null));
+        }
+    }
+
+    private String generateRandomCode() {
+        int length = 6;
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder code = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < length; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return code.toString();
+    }
 }

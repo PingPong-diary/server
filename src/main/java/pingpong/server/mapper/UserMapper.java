@@ -11,4 +11,5 @@ public interface UserMapper {
     void joinUser(User user);
     boolean isEmail(String email);
     void changePw(@Param("email") String email, @Param("password") String password);
+    void deleteUser(String email); 
 }

@@ -5,8 +5,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MailRequestDto {
-	private String email;
-	private String code;
-
+public class FriendRequestDto {
+    private int friendId;
 }

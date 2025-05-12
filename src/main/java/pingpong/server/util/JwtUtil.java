@@ -2,6 +2,7 @@ package pingpong.server.util;
 
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
@@ -10,10 +11,11 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.Setter;
 
 @Component
-@ConfigurationProperties(prefix = "jwt")
+//@ConfigurationProperties(prefix = "jwt")
 @Setter
 public class JwtUtil {
 
+	@Value("${jwt.secret}")
 	private String SECRET_KEY;
 
 	// 토큰 발급

@@ -1,29 +1,38 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="pingpong.server.mapper.UserMapper">
 
-    <select id="getUser" resultType="pingpong.server.domain.User">
-        SELECT * FROM USER WHERE email = #{email}
-    </select>
+	<select id="getUser" resultType="pingpong.server.domain.User">
+		SELECT * FROM USERS WHERE email = #{email} AND is_deleted = 0
+	</select>
 
-    <insert id="joinUser">
-        INSERT INTO USER (email, provider, password, nickname, profile_img, create_at, update_at)
-        VALUES (#{email}, #{provider}, #{password}, #{nickname}, #{profileImg}, SYSDATE, SYSDATE)
-    </insert>
+	<insert id="joinUser" parameterType="User">
+		INSERT INTO USERS (
+		email, password, nickname, provider, profile_img
+		) VALUES (
+		#{email}, #{password}, #{nickname},
+		#{provider, jdbcType=VARCHAR},
+		#{profileImg, jdbcType=VARCHAR}
+		)
+	</insert>
 
-    <select id="isEmail" resultType="boolean" parameterType="string">
-        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
-        FROM USER
-        WHERE email = #{email}
-    </select>
-    
-    <update id="changePw">
-	    UPDATE USER
-	    SET password = #{password}, update_at = SYSDATE
-	    WHERE email = #{email}
+	<select id="isEmail" resultType="boolean" parameterType="string">
+		SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+		FROM USERS
+		WHERE email = #{email}
+	</select>
+
+	<update id="changePw">
+		UPDATE USERS
+		SET password = #{password}, update_at = SYSDATE
+		WHERE email = #{email}
+	</update>
+
+	<update id="deleteUser">
+		UPDATE USERS
+		SET is_deleted = 1, update_at = SYSDATE
+		WHERE email = #{email}
 	</update>
 
 </mapper>

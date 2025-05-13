@@ -1,0 +1,30 @@
+<mapper namespace="pingpong.server.mapper.DiaryMapper">
+
+    <insert id="createDiary" parameterType="Diary">
+        INSERT INTO diary (id, owner_id, emotion_color, weather, title, content, create_at, update_at, is_deleted)
+        VALUES (#{id}, #{ownerId}, #{emotionColor}, #{weather}, #{title}, #{content}, SYSDATE, SYSDATE, 0)
+    </insert>
+
+    <select id="getDiaryList" resultType="pingpong.server.domain.Diary">
+        SELECT * FROM diary WHERE owner_id = #{userId} AND is_deleted = 0 ORDER BY create_at DESC
+    </select>
+
+    <select id="getDiaryById" resultType="pingpong.server.domain.Diary">
+        SELECT * FROM diary WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <update id="updateDiary" parameterType="Diary">
+        UPDATE diary
+        SET emotion_color = #{emotionColor},
+            weather = #{weather},
+            title = #{title},
+            content = #{content},
+            update_at = SYSDATE
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteDiary">
+        UPDATE diary SET is_deleted = 1, update_at = SYSDATE WHERE id = #{id}
+    </update>
+
+</mapper>

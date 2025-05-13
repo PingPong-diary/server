@@ -1,0 +1,16 @@
+<mapper namespace="pingpong.server.mapper.UserDiaryMapper">
+
+    <select id="getMembers" resultType="pingpong.server.domain.UserDiary">
+        SELECT * FROM user_diary WHERE diary_id = #{diaryId}
+    </select>
+
+    <insert id="inviteMember">
+        INSERT INTO user_diary (user_id, diary_id, role, status)
+        VALUES (#{userId}, #{diaryId}, 'MEMBER', 'ACTIVE')
+    </insert>
+
+    <delete id="removeMember">
+        DELETE FROM user_diary WHERE diary_id = #{diaryId} AND user_id = #{userId}
+    </delete>
+
+</mapper>

@@ -13,20 +13,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.User;
 import pingpong.server.mapper.UserMapper;
 import pingpong.server.util.JwtUtil;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
 	private final UserMapper userMapper;
-
-	public JwtAuthenticationFilter(JwtUtil jwtUtil, UserMapper userMapper) {
-	    this.jwtUtil = jwtUtil;
-	    this.userMapper = userMapper;
-	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,

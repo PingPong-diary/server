@@ -6,8 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserDiary {
-    private int id;
-    private int userId;
-    private int diaryId;
-    private String role; 
+	private int id;
+	private int userId;
+	private int diaryId;
+	private String role;
+	private String status;
 }

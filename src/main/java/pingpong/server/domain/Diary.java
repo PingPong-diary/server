@@ -7,10 +7,13 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Diary {
-    private int id;
-    private Timestamp writtenAt;
-    private int emotionColor;
-    private int weather;
-    private String title;
-    private String content;
+	private int id;
+	private int ownerId;
+	private String title;
+	private String content;
+	private int emotionColor;
+	private int weather;
+	private int isDeleted;
+	private Timestamp createAt;
+	private Timestamp updateAt;
 }

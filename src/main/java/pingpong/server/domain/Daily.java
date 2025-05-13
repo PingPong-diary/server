@@ -7,7 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Daily {
-    private int id;
-    private Timestamp writtenAt;
-    private String content;
+	private int id;
+	private int ownerId;
+	private String title;
+	private String content;
+	private int isDeleted;
+	private Timestamp createAt;
+	private Timestamp updateAt;
 }

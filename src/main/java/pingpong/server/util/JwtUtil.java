@@ -17,6 +17,8 @@ public class JwtUtil {
 
 	@Value("${jwt.secret}")
 	private String SECRET_KEY;
+	
+	 private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
 	// 토큰 발급
 	public String generateToken(String email) {
@@ -24,7 +26,7 @@ public class JwtUtil {
 		return Jwts.builder()
 				.setSubject(email)
 				.setIssuedAt(new Date(now))
-				.setExpiration(new Date(now + 1000 * 60 * 60 * 24)) // 1일 유효
+				.setExpiration(new Date(now + EXPIRATION_TIME)) // 1일 유효
 				.signWith(SignatureAlgorithm.HS256, SECRET_KEY)
 				.compact();
 	}

@@ -13,15 +13,19 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import pingpong.server.domain.User;
+import pingpong.server.mapper.UserMapper;
 import pingpong.server.util.JwtUtil;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtUtil jwtUtil;
+	private final UserMapper userMapper;
 
-	public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-		this.jwtUtil = jwtUtil;
+	public JwtAuthenticationFilter(JwtUtil jwtUtil, UserMapper userMapper) {
+	    this.jwtUtil = jwtUtil;
+	    this.userMapper = userMapper;
 	}
 
 	@Override
@@ -34,12 +38,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			String token = authHeader.substring(7);
 			String email = jwtUtil.getToken(token);
 			if (email != null && jwtUtil.validateToken(token)) {
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-						email, null, List.of()
-						);
-				authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authentication);
+			    User user = userMapper.getUser(email);  
+			    UsernamePasswordAuthenticationToken authentication =
+			        new UsernamePasswordAuthenticationToken(user, null, List.of());
+			    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			    SecurityContextHolder.getContext().setAuthentication(authentication);
 			}
+
 		}
 
 		filterChain.doFilter(request, response);

@@ -14,7 +14,7 @@ public class User {
 	private String password;
 	private String nickname;
 	private String profileImg;
-	private int isDeleted;
+	private boolean isDeleted;
 	private Timestamp createAt;
 	private Timestamp updateAt;
 }

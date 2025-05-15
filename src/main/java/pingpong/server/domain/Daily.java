@@ -11,7 +11,7 @@ public class Daily {
 	private int ownerId;
 	private String title;
 	private String content;
-	private int isDeleted;
+	private boolean isDeleted;
 	private Timestamp createAt;
 	private Timestamp updateAt;
 }

@@ -39,25 +39,37 @@ public class UserService {
 	}
 
 	public User getLoginUser() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication != null) {
-			return (User) authentication.getPrincipal(); // 인증된 사용자 정보 반환
-		}
-		return null;
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    if (authentication == null) return null;
+
+	    Object principal = authentication.getPrincipal();
+	    if (principal instanceof User user) {
+	        return user;
+	    }
+	    return null;
 	}
+
 
 	public void changePassword(ChangePwRequestDto request) {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String email = (String) auth.getPrincipal();
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null) {
+	        throw new IllegalStateException("인증 정보가 없습니다.");
+	    }
 
-		User user = userMapper.getUser(email);
-		if (!passwordEncoder.matches(request.getCurrentPw(), user.getPassword())) {
-			throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
-		}
+	    Object principal = auth.getPrincipal();
+	    if (!(principal instanceof User user)) {
+	        throw new IllegalStateException("유저 정보가 없습니다.");
+	    }
 
-		String encodedNewPw = passwordEncoder.encode(request.getNewPw());
-		userMapper.changePw(email, encodedNewPw);
+	    User dbUser = userMapper.getUser(user.getEmail());
+	    if (!passwordEncoder.matches(request.getCurrentPw(), dbUser.getPassword())) {
+	        throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+	    }
+
+	    String encodedNewPw = passwordEncoder.encode(request.getNewPw());
+	    userMapper.changePw(user.getEmail(), encodedNewPw);
 	}
+
 
 	public void resetPassword(ResetPwRequestDto request) {
 		User user = userMapper.getUser(request.getEmail());
@@ -70,10 +82,14 @@ public class UserService {
 	}
 
 	public void deleteUser() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-		String email = (String) auth.getPrincipal();
+	    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+	    if (auth == null) return;
 
-		userMapper.deleteUser(email);
+	    Object principal = auth.getPrincipal();
+	    if (principal instanceof User user) {
+	        userMapper.deleteUser(user.getEmail());
+	    }
 	}
+
 
 }

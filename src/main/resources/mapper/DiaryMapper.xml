@@ -1,30 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
 <mapper namespace="pingpong.server.mapper.DiaryMapper">
 
-    <insert id="createDiary" parameterType="Diary">
-        INSERT INTO diary (id, owner_id, emotion_color, weather, title, content, create_at, update_at, is_deleted)
-        VALUES (#{id}, #{ownerId}, #{emotionColor}, #{weather}, #{title}, #{content}, SYSDATE, SYSDATE, 0)
-    </insert>
+	<insert id="createDiary" parameterType="Diary">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			SELECT DIARY_SEQ.NEXTVAL FROM dual
+		</selectKey> INSERT
+		INTO diary ( id, owner_id, emotion_color, weather, title, content,
+		create_at, update_at, is_deleted ) VALUES ( #{id}, #{ownerId},
+		#{emotionColor}, #{weather}, #{title}, #{content}, SYSDATE, SYSDATE, 0 ) </insert>
 
-    <select id="getDiaryList" resultType="pingpong.server.domain.Diary">
-        SELECT * FROM diary WHERE owner_id = #{userId} AND is_deleted = 0 ORDER BY create_at DESC
-    </select>
 
-    <select id="getDiaryById" resultType="pingpong.server.domain.Diary">
-        SELECT * FROM diary WHERE id = #{id} AND is_deleted = 0
-    </select>
+	<select id="getDiaryList" resultType="pingpong.server.domain.Diary">
+		SELECT * FROM diary WHERE owner_id = #{userId} AND is_deleted = 0 ORDER
+		BY create_at DESC
+	</select>
 
-    <update id="updateDiary" parameterType="Diary">
-        UPDATE diary
-        SET emotion_color = #{emotionColor},
-            weather = #{weather},
-            title = #{title},
-            content = #{content},
-            update_at = SYSDATE
-        WHERE id = #{id}
-    </update>
+	<select id="getDiaryById" resultType="pingpong.server.domain.Diary">
+		SELECT * FROM diary WHERE id = #{id} AND is_deleted = 0
+	</select>
 
-    <update id="deleteDiary">
-        UPDATE diary SET is_deleted = 1, update_at = SYSDATE WHERE id = #{id}
-    </update>
+	<update id="updateDiary" parameterType="Diary">
+		UPDATE diary
+		SET emotion_color = #{emotionColor},
+		weather = #{weather},
+		title = #{title},
+		content = #{content},
+		update_at = SYSDATE
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteDiary">
+		UPDATE diary SET is_deleted = 1, update_at = SYSDATE WHERE id = #{id}
+	</update>
 
 </mapper>

@@ -10,7 +10,7 @@ public class Friend {
 	private int id;
 	private int userId;
 	private int friendId;
-	private String status;
+	private FriendStatus status;
 	private Timestamp createAt;
 	private Timestamp updateAt;
 }

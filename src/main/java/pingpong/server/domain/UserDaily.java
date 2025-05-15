@@ -9,6 +9,6 @@ public class UserDaily {
 	private int id;
 	private int userId;
 	private int dailyId;
-	private String role;
+	private UserDiaryRole role; 
 	private String status;
 }

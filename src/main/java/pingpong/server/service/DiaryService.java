@@ -8,12 +8,14 @@ import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.Diary;
 import pingpong.server.dto.request.DiaryRequestDto;
 import pingpong.server.mapper.DiaryMapper;
+import pingpong.server.mapper.UserDiaryMapper;
 
 @Service
 @RequiredArgsConstructor
 public class DiaryService {
 
     private final DiaryMapper diaryMapper;
+    private final UserDiaryMapper userDiaryMapper;
 
     public void createDiary(int userId, DiaryRequestDto request) {
         Diary diary = new Diary();
@@ -24,6 +26,8 @@ public class DiaryService {
         diary.setContent(request.getContent());
 
         diaryMapper.createDiary(diary);
+        
+        userDiaryMapper.inviteMemberAsOwner(diary.getId(), userId);
     }
 
     public List<Diary> getDiaryList(int userId) {

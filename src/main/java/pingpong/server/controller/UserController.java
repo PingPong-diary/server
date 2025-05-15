@@ -1,6 +1,5 @@
 package pingpong.server.controller;
 
-import java.util.Map;
 import java.util.Random;
 
 import org.springframework.http.ResponseEntity;
@@ -21,6 +20,7 @@ import pingpong.server.dto.request.LoginRequestDto;
 import pingpong.server.dto.request.MailRequestDto;
 import pingpong.server.dto.request.ResetPwRequestDto;
 import pingpong.server.dto.response.ChangePwRequestDto;
+import pingpong.server.dto.response.LoginResponseDto;
 import pingpong.server.dto.response.UserSearchResponseDto;
 import pingpong.server.service.MailService;
 import pingpong.server.service.MailVerificationService;
@@ -38,32 +38,10 @@ public class UserController {
     private final MailService mailService;
     private final MailVerificationService mailVerificationService;
 
-    @PostMapping("/join")
-    public ResponseEntity<ApiResponse<Void>> joinUser(@RequestBody JoinRequestDto request) {
-        if (userService.isEmail(request.getEmail())) {
-            return ResponseEntity.badRequest()
-                .body(new ApiResponse<>(true, "이미 등록된 아이디입니다!", null));
-        }
-        userService.joinUser(request);
-        return ResponseEntity.ok(new ApiResponse<>(true, "회원가입 성공", null));
-    }
-
     @GetMapping("/check-email")
     public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
         boolean isDuplicate = userService.isEmail(email);
         return ResponseEntity.ok(new ApiResponse<>(true, "이메일 중복 확인 완료", isDuplicate));
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Map<String, String>>> login(@RequestBody LoginRequestDto request) {
-        User user = userService.getUser(request.getEmail());
-        if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            String token = jwtUtil.generateToken(user.getEmail());
-            return ResponseEntity.ok(new ApiResponse<>(true, "로그인 성공", Map.of("token", token)));
-        } else {
-            return ResponseEntity.status(401)
-                .body(new ApiResponse<>(false, "이메일 또는 비밀번호가 틀렸습니다.", null));
-        }
     }
 
     @GetMapping("/token")
@@ -75,11 +53,6 @@ public class UserController {
             return ResponseEntity.status(401)
                 .body(new ApiResponse<>(false, "인증되지 않은 사용자입니다.", null));
         }
-    }
-
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout() {
-        return ResponseEntity.ok(new ApiResponse<>(true, "로그아웃 되었습니다. 토큰은 클라이언트에서 삭제하세요.", null));
     }
 
     @PatchMapping("/change-pw")

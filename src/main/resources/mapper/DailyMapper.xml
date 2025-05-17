@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pingpong.server.mapper.DailyMapper">
+
+    <insert id="create" parameterType="Daily">
+        <selectKey keyProperty="id" resultType="int" order="BEFORE">
+            SELECT DAILY_SEQ.NEXTVAL FROM dual
+        </selectKey>
+        INSERT INTO daily (id, owner_id, title, content, create_at, update_at, is_deleted)
+        VALUES (#{id}, #{ownerId}, #{title}, #{content}, SYSDATE, SYSDATE, 0)
+    </insert>
+
+    <select id="getList" resultType="pingpong.server.domain.Daily">
+        SELECT d.*
+        FROM daily d
+        JOIN user_daily ud ON d.id = ud.daily_id
+        WHERE ud.user_id = #{userId} AND d.is_deleted = 0
+        ORDER BY d.create_at DESC
+    </select>
+
+    <update id="update" parameterType="Daily">
+        UPDATE daily
+        SET title = #{title},
+            content = #{content},
+            update_at = SYSDATE
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE daily
+        SET is_deleted = 1, update_at = SYSDATE
+        WHERE id = #{id}
+    </update>
+
+</mapper>

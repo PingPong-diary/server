@@ -12,15 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.User;
 import pingpong.server.dto.ApiResponse;
-import pingpong.server.dto.request.JoinRequestDto;
-import pingpong.server.dto.request.LoginRequestDto;
 import pingpong.server.dto.request.MailRequestDto;
 import pingpong.server.dto.request.ResetPwRequestDto;
 import pingpong.server.dto.response.ChangePwRequestDto;
-import pingpong.server.dto.response.LoginResponseDto;
 import pingpong.server.dto.response.UserSearchResponseDto;
 import pingpong.server.service.MailService;
 import pingpong.server.service.MailVerificationService;
@@ -67,7 +65,7 @@ public class UserController {
     }
 
     @PostMapping("/pw/reset")
-    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody ResetPwRequestDto request) {
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@Valid @RequestBody ResetPwRequestDto request) {
         try {
             userService.resetPassword(request);
             return ResponseEntity.ok(new ApiResponse<>(true, "비밀번호가 재설정되었습니다.", null));

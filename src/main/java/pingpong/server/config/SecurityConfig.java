@@ -1,5 +1,6 @@
 package pingpong.server.config;
 
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,7 +26,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-            		 .requestMatchers("/", "/user/join", "/user/check-email", "/user/login", "/user/pw/reset", "/user/email/request-code","/user/email/verify").permitAll()
+            		 .requestMatchers("/", "/auth/join", "/auth/login", "/user/check-email", "/user/pw/reset", "/user/email/request-code","/user/email/verify").permitAll()
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

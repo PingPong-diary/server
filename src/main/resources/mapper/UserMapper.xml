@@ -4,8 +4,10 @@
 <mapper namespace="pingpong.server.mapper.UserMapper">
 
 	<select id="getUser" resultType="pingpong.server.domain.User">
-		SELECT * FROM USERS WHERE email = #{email} AND is_deleted = 0
+		SELECT * FROM USERS_ACTIVE
+		WHERE email = #{email, jdbcType=VARCHAR}
 	</select>
+
 
 	<insert id="joinUser" parameterType="User">
 		INSERT INTO USERS (
@@ -21,7 +23,9 @@
 		SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
 		FROM USERS
 		WHERE email = #{email}
+		AND is_deleted = 0
 	</select>
+
 
 	<update id="changePw">
 		UPDATE USERS

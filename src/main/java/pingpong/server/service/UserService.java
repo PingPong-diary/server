@@ -22,17 +22,37 @@ public class UserService {
 	private PasswordEncoder passwordEncoder;
 
 	public User getUser(String email) {
-		return userMapper.getUser(email);
+	    if (email == null || email.isBlank()) {
+	        throw new IllegalArgumentException("이메일이 비어 있습니다.");
+	    }
+	    return userMapper.getUser(email);
 	}
+
 
 	public void joinUser(JoinRequestDto request) {
-		User user = new User();
-		user.setEmail(request.getEmail());
-		user.setNickname(request.getNickname());
-		user.setPassword(passwordEncoder.encode(request.getPassword()));
+	    if (request.getPassword() == null || request.getPassword().isBlank()) {
+	        throw new IllegalArgumentException("비밀번호는 필수입니다.");
+	    }
 
-		userMapper.joinUser(user);
+	    User user = new User();
+	    user.setEmail(request.getEmail());
+	    user.setNickname(request.getNickname());
+	    user.setPassword(passwordEncoder.encode(request.getPassword()));
+	    user.setProvider("local");
+
+	    userMapper.joinUser(user);
 	}
+	
+	public void joinSnsUser(String email, String nickname, String provider) {
+	    User user = new User();
+	    user.setEmail(email);
+	    user.setNickname(nickname);
+	    user.setProvider(provider);
+	    user.setPassword(null);
+
+	    userMapper.joinUser(user);
+	}
+
 
 	public boolean isEmail(String email) {
 		return userMapper.isEmail(email);

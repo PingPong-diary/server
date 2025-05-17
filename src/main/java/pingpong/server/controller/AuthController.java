@@ -37,15 +37,22 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponseDto>> login(@RequestBody LoginRequestDto request) {
         User user = userService.getUser(request.getEmail());
-        if (user != null && passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+
+        if (user != null &&
+            "local".equals(user.getProvider()) &&
+            user.getPassword() != null &&
+            passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+
             String token = jwtUtil.generateToken(user.getEmail());
             LoginResponseDto response = new LoginResponseDto(token, user.getNickname(), user.getEmail());
+
             return ResponseEntity.ok(new ApiResponse<>(true, "로그인 성공", response));
-        } else {
-            return ResponseEntity.status(401)
-                    .body(new ApiResponse<>(false, "이메일 또는 비밀번호가 틀렸습니다.", null));
         }
+
+        return ResponseEntity.status(401)
+                .body(new ApiResponse<>(false, "이메일 또는 비밀번호가 틀렸습니다.", null));
     }
+
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout() {

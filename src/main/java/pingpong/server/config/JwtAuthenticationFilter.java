@@ -28,35 +28,39 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request,
-			HttpServletResponse response,
-			FilterChain filterChain)
-					throws ServletException, IOException {
-		String authHeader = request.getHeader("Authorization");
-		if (authHeader != null && authHeader.startsWith("Bearer ")) {
-			String token = authHeader.substring(7);
-			try {
-				String email = jwtUtil.getToken(token);
-				if (email != null && jwtUtil.validateToken(token)) {
-					User user = userMapper.getUser(email);  
-					UsernamePasswordAuthenticationToken authentication =
-							new UsernamePasswordAuthenticationToken(user, null, List.of());
-					authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-					SecurityContextHolder.getContext().setAuthentication(authentication);
-				}
-			} catch (ExpiredJwtException e) {
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-				response.getWriter().write("{\"result\":false,\"message\":\"토큰이 만료되었습니다.\"}");
-				return;
-			} catch (Exception e) {
-				response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-				response.setContentType("application/json");
-				response.getWriter().write("{\"result\":false,\"message\":\"유효하지 않은 토큰입니다.\"}");
-				return;
-			}
-		}
+	                                HttpServletResponse response,
+	                                FilterChain filterChain)
+	        throws ServletException, IOException {
 
-		filterChain.doFilter(request, response);
+	    String authHeader = request.getHeader("Authorization");
+	    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+	        String token = authHeader.substring(7);
+	        try {
+	            String email = jwtUtil.getToken(token);
+	            if (email != null && jwtUtil.validateToken(token)) {
+	                User user = userMapper.getUser(email);
+	                UsernamePasswordAuthenticationToken authentication =
+	                        new UsernamePasswordAuthenticationToken(user, null, List.of());
+	                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+	                SecurityContextHolder.getContext().setAuthentication(authentication);
+	            }
+	        } catch (ExpiredJwtException e) {
+	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	            response.setCharacterEncoding("UTF-8");
+	            response.setContentType("application/json; charset=UTF-8");
+	            response.getWriter().write("{\"result\":false,\"message\":\"토큰이 만료되었습니다.\"}");
+	            return;
+	        } catch (Exception e) {
+	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	            response.setCharacterEncoding("UTF-8");
+	            response.setContentType("application/json; charset=UTF-8");
+	            response.getWriter().write("{\"result\":false,\"message\":\"유효하지 않은 토큰입니다.\"}");
+	            return;
+	        }
+	    }
+
+	    filterChain.doFilter(request, response);
 	}
+
 
 }

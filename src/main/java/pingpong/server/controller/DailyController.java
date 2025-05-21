@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.Daily;
 import pingpong.server.dto.ApiResponse;
 import pingpong.server.dto.request.DailyRequestDto;
+import pingpong.server.service.AuthService;
 import pingpong.server.service.DailyService;
 import pingpong.server.service.UserService;
 
@@ -26,17 +27,18 @@ public class DailyController {
 
     private final DailyService dailyService;
     private final UserService userService;
+    private final AuthService authService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> create(@RequestBody DailyRequestDto request) {
-        int userId = userService.getLoginUser().getId();
+        int userId = authService.getLoginUser().getId();
         dailyService.create(userId, request);
         return ResponseEntity.ok(new ApiResponse<>(true, "일정 생성 완료", null));
     }
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<List<Daily>>> list() {
-        int userId = userService.getLoginUser().getId();
+        int userId = authService.getLoginUser().getId();
         return ResponseEntity.ok(new ApiResponse<>(true, "일정 목록 조회 성공", dailyService.getList(userId)));
     }
 

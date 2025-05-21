@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.UserDiary;
 import pingpong.server.dto.ApiResponse;
+import pingpong.server.service.AuthService;
 import pingpong.server.service.UserDiaryService;
 import pingpong.server.service.UserService;
 
@@ -24,6 +25,7 @@ public class UserDiaryController {
 
     private final UserDiaryService userDiaryService;
     private final UserService userService;
+    private final AuthService authService;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserDiary>>> getMembers(@PathVariable int diaryId) {
@@ -35,7 +37,7 @@ public class UserDiaryController {
     public ResponseEntity<ApiResponse<Void>> inviteMember(
             @PathVariable int diaryId,
             @RequestParam int userId) {
-        int requesterId = userService.getLoginUser().getId();
+        int requesterId = authService.getLoginUser().getId();
         userDiaryService.inviteMember(requesterId, diaryId, userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "초대 완료", null));
     }
@@ -44,7 +46,7 @@ public class UserDiaryController {
     public ResponseEntity<ApiResponse<Void>> removeMember(
             @PathVariable int diaryId,
             @PathVariable int userId) {
-        int requesterId = userService.getLoginUser().getId();
+        int requesterId = authService.getLoginUser().getId();
         userDiaryService.removeMember(requesterId, diaryId, userId);
         return ResponseEntity.ok(new ApiResponse<>(true, "삭제 완료", null));
     }

@@ -20,7 +20,11 @@ public class JwtUtil {
 	
 	 private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
 
-	// 토큰 발급
+	 public long getRefreshTokenExpiration() {
+		    return 1000L * 60 * 60 * 24 * 7;  // 7일
+		}
+	 
+	 // 토큰 발급
 	public String generateToken(String email) {
 		long now = System.currentTimeMillis();
 		return Jwts.builder()

@@ -6,6 +6,7 @@ target/
 
 /target
 application.properties
+application.yml
 .env
 
 ### STS ###
@@ -16,5 +17,3 @@ application.properties
 .settings
 .springBeans
 .sts4-cache
-
-

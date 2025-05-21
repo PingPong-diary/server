@@ -13,6 +13,7 @@ import pingpong.server.domain.User;
 import pingpong.server.dto.ApiResponse;
 import pingpong.server.dto.KakaoUserInfoDto;
 import pingpong.server.dto.response.LoginResponseDto;
+import pingpong.server.service.AuthService;
 import pingpong.server.service.KakaoOauthService;
 import pingpong.server.service.UserService;
 import pingpong.server.util.JwtUtil;
@@ -23,6 +24,7 @@ import pingpong.server.util.JwtUtil;
 public class AuthSnsController {
 
     private final UserService userService;
+    private final AuthService authService;
     private final KakaoOauthService kakaoOauthService;
     private final JwtUtil jwtUtil;
 
@@ -34,7 +36,7 @@ public class AuthSnsController {
         String email = kakaoUser.getEmail();
         String nickname = kakaoUser.getNickname();
 
-        User user = userService.getUser(email);
+        User user = authService.getUser(email);
         if (user == null) {
             userService.joinSnsUser(email, nickname, "kakao");
         }

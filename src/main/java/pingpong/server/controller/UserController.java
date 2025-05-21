@@ -20,6 +20,7 @@ import pingpong.server.dto.request.MailRequestDto;
 import pingpong.server.dto.request.ResetPwRequestDto;
 import pingpong.server.dto.response.ChangePwRequestDto;
 import pingpong.server.dto.response.UserSearchResponseDto;
+import pingpong.server.service.AuthService;
 import pingpong.server.service.MailService;
 import pingpong.server.service.MailVerificationService;
 import pingpong.server.service.UserService;
@@ -35,6 +36,7 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final MailService mailService;
     private final MailVerificationService mailVerificationService;
+    private final AuthService authService;
 
     @GetMapping("/check-email")
     public ResponseEntity<ApiResponse<Boolean>> checkEmail(@RequestParam String email) {
@@ -44,7 +46,7 @@ public class UserController {
 
     @GetMapping("/token")
     public ResponseEntity<ApiResponse<User>> getLoginUser() {
-        User user = userService.getLoginUser();
+        User user = authService.getLoginUser();
         if (user != null) {
             return ResponseEntity.ok(new ApiResponse<>(true, "유저 조회 성공", user));
         } else {
@@ -107,7 +109,7 @@ public class UserController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<UserSearchResponseDto>> searchUser(@RequestParam String email) {
-        User user = userService.getUser(email);
+        User user = authService.getUser(email);
         if (user != null) {
             UserSearchResponseDto response = new UserSearchResponseDto(user.getNickname(), user.getProfileImg());
             return ResponseEntity.ok(new ApiResponse<>(true, "유저 검색 성공", response));

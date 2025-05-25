@@ -6,10 +6,28 @@
 	<insert id="createDiary" parameterType="Diary">
 		<selectKey keyProperty="id" resultType="int" order="BEFORE">
 			SELECT DIARY_SEQ.NEXTVAL FROM dual
-		</selectKey> INSERT
-		INTO diary ( id, owner_id, emotion_color, weather, title, content,
-		create_at, update_at, is_deleted ) VALUES ( #{id}, #{ownerId},
-		#{emotionColor}, #{weather}, #{title}, #{content}, SYSDATE, SYSDATE, 0 ) </insert>
+		</selectKey> INSERT INTO
+		diary ( id, owner_id, emotion_color, weather, title, content, create_at,
+		update_at, is_deleted ) VALUES ( #{id}, #{ownerId}, #{emotionColor},
+		#{weather}, #{title}, #{content}, SYSDATE, SYSDATE, 0 ) </insert>
+
+	<select id="getDiarySharedList"
+		resultType="pingpong.server.dto.response.DiaryResponseDto">
+		SELECT
+		d.id,
+		d.title,
+		d.content,
+		d.emotion_color AS emotionColor,
+		u.nickname,
+		d.shared,
+		d.weather,
+		d.create_at AS createAt
+		FROM diary d
+		JOIN user_diary ud ON d.id = ud.diary_id
+		JOIN user u ON d.owner_id = u.id
+		WHERE ud.user_id = #{userId}
+		AND d.is_deleted = false
+	</select>
 
 
 	<select id="getDiaryList" resultType="pingpong.server.domain.Diary">
@@ -33,6 +51,29 @@
 
 	<update id="deleteDiary">
 		UPDATE diary SET is_deleted = 1, update_at = SYSDATE WHERE id = #{id}
-	</update>
+	</update
+
+	<resultMap id="calendarEmotionMap"
+		type="pingpong.server.dto.response.CalendarDiaryDto">
+		<result property="date" column="date" />
+		<collection property="emotions"
+			ofType="pingpong.server.dto.response.EmotionResponseDto">
+			<result property="nickname" column="nickname" />
+			<result property="emotionColor" column="emotion_color" />
+		</collection>
+	</resultMap>
+
+	<select id="getCalendarEmotionList" resultMap="calendarEmotionMap">
+		SELECT
+		TO_CHAR(d.create_at, 'YYYY-MM-DD') AS date,
+		u.nickname,
+		d.emotion_color
+		FROM diary d
+		JOIN user_diary ud ON d.id = ud.diary_id
+		JOIN user u ON ud.user_id = u.id
+		WHERE ud.user_id = #{userId}
+		AND d.is_deleted = 0
+	</select>
+
 
 </mapper>

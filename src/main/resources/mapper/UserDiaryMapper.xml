@@ -33,4 +33,10 @@
 		VALUES (#{userId}, #{diaryId}, 'OWNER', 'ACTIVE')
 	</insert>
 
+	<insert id="inviteMemberAsReceiver">
+		INSERT INTO user_diary (diary_id, user_id, role)
+		VALUES (#{diaryId}, #{userId}, 'RECEIVER')
+	</insert>
+
+
 </mapper>

@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.Diary;
+import pingpong.server.dto.CalendarDiaryDto;
 import pingpong.server.dto.request.DiaryRequestDto;
+import pingpong.server.dto.response.DiaryResponseDto;
 import pingpong.server.mapper.DiaryMapper;
 import pingpong.server.mapper.UserDiaryMapper;
 
@@ -24,11 +26,23 @@ public class DiaryService {
         diary.setWeather(request.getWeather());
         diary.setTitle(request.getTitle());
         diary.setContent(request.getContent());
+        diary.setShared(request.isShared());
 
         diaryMapper.createDiary(diary);
         
         userDiaryMapper.inviteMemberAsOwner(diary.getId(), userId);
+        
+        if (request.isShared() && request.getMembers() != null) {
+            for (Integer receiverId : request.getMembers()) {
+                userDiaryMapper.inviteMemberAsReceiver(diary.getId(), receiverId);
+            }
+        }
     }
+    
+    public List<DiaryResponseDto> getDiarySharedList(int userId) {
+        return diaryMapper.getDiarySharedList(userId); 
+    }
+
 
     public List<Diary> getDiaryList(int userId) {
         return diaryMapper.getDiaryList(userId);
@@ -52,4 +66,9 @@ public class DiaryService {
     public void deleteDiary(int id) {
         diaryMapper.deleteDiary(id);
     }
+    
+    public List<CalendarDiaryDto> getCalendarEmotionList(int userId) {
+        return diaryMapper.getCalendarEmotionList(userId);
+    }
+
 }

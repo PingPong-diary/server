@@ -18,5 +18,8 @@ public interface UserDiaryMapper {
     boolean isUserInDiary(@Param("diaryId") int diaryId, @Param("userId") int userId);
 
     void inviteMemberAsOwner(@Param("diaryId") int diaryId, @Param("userId") int userId);
+    
+    void inviteMemberAsReceiver(@Param("diaryId") int diaryId, @Param("userId") int userId);
+
 
 }

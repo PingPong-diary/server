@@ -1,8 +1,6 @@
-package pingpong.server.dto;
+package pingpong.server.dto.response;
 
 import java.util.List;
-
-import pingpong.server.dto.response.EmotionResponseDto;
 
 public class CalendarDiaryDto {
 	private String date; 

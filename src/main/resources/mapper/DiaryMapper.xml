@@ -51,7 +51,7 @@
 
 	<update id="deleteDiary">
 		UPDATE diary SET is_deleted = 1, update_at = SYSDATE WHERE id = #{id}
-	</update
+	</update>
 
 	<resultMap id="calendarEmotionMap"
 		type="pingpong.server.dto.response.CalendarDiaryDto">

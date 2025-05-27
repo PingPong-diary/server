@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import pingpong.server.domain.Diary;
-import pingpong.server.dto.CalendarDiaryDto;
 import pingpong.server.dto.request.DiaryRequestDto;
+import pingpong.server.dto.response.CalendarDiaryDto;
 import pingpong.server.dto.response.DiaryResponseDto;
 import pingpong.server.mapper.DiaryMapper;
 import pingpong.server.mapper.UserDiaryMapper;

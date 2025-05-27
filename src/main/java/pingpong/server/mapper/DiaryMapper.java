@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import pingpong.server.domain.Diary;
-import pingpong.server.dto.CalendarDiaryDto;
+import pingpong.server.dto.response.CalendarDiaryDto;
 import pingpong.server.dto.response.DiaryResponseDto;
 
 @Mapper

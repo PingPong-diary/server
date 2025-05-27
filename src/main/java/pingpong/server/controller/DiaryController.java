@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import pingpong.server.dto.ApiResponse;
-import pingpong.server.dto.CalendarDiaryDto;
 import pingpong.server.dto.request.DiaryRequestDto;
+import pingpong.server.dto.response.CalendarDiaryDto;
 import pingpong.server.dto.response.DiaryResponseDto;
 import pingpong.server.service.AuthService;
 import pingpong.server.service.DiaryService;

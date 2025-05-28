@@ -8,6 +8,7 @@ target/
 application.properties
 application.yml
 .env
+*.pem
 
 ### STS ###
 .apt_generated
